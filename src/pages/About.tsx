@@ -1,4 +1,3 @@
-import React from "react";
 import { logo } from "@/assets"; // Ensure logo is a large transparent PNG or JPG
 
 function Home() {

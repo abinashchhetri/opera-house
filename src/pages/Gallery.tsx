@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { X } from "lucide-react";
 import images from "@/assets";
 
@@ -9,7 +9,10 @@ const Gallery = () => {
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4 max-w-[1440px] mx-auto">
         {Object.values(images).map((img, index) => (
-          <div key={index} className="aspect-square overflow-hidden rounded-xl shadow-md">
+          <div
+            key={index}
+            className="aspect-square overflow-hidden rounded-xl shadow-md"
+          >
             <img
               src={img}
               alt={`Gallery ${index}`}
@@ -34,10 +37,7 @@ const Gallery = () => {
             <X className="w-8 h-8" />
           </button>
 
-          <div
-            className="z-50"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="z-50" onClick={(e) => e.stopPropagation()}>
             <img
               src={selectedImage}
               alt="Full Size"

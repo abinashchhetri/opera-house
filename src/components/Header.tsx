@@ -1,5 +1,3 @@
-import React from "react";
-
 const Header = () => {
   return (
     <header className=" w-full bg-[#03739B] text-white p-6 shadow-lg">
