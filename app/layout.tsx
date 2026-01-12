@@ -1,26 +1,25 @@
-"use client"
-import type React from "react"
-import type { Metadata } from "next"
-import { Poppins, Playfair_Display } from "next/font/google"
-import localFont from "next/font/local"
-import "./globals.css"
-import { Header } from "@/components/layout/header"
-import { Footer } from "@/components/layout/footer"
-import { COMPANY_INFO } from "@/lib/constants"
-import { usePathname } from "next/navigation"
+"use client";
+import { Footer } from "@/components/layout/footer";
+import { Header } from "@/components/layout/header";
+import { Toaster } from "@/components/ui/toaster";
+import { Playfair_Display, Poppins } from "next/font/google";
+import localFont from "next/font/local";
+import { usePathname } from "next/navigation";
+import type React from "react";
+import "./globals.css";
 
 const poppins = Poppins({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   display: "swap",
   variable: "--font-poppins",
-})
+});
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-playfair",
-})
+});
 
 const jeko = localFont({
   src: [
@@ -48,24 +47,26 @@ const jeko = localFont({
   variable: "--font-jeko",
   display: "swap",
   fallback: ["serif"],
-})
-
-
+});
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
   const path = usePathname();
   const isDashboard = path.startsWith("/dashboard");
   return (
-    <html lang="en" className={`${poppins.variable} ${playfair.variable} ${jeko.variable}`}>
+    <html
+      lang="en"
+      className={`${poppins.variable} ${playfair.variable} ${jeko.variable}`}
+    >
       <body className="min-h-screen flex flex-col">
         {isDashboard ? null : <Header />}
         <main className="flex-1">{children}</main>
         {isDashboard ? null : <Footer />}
+        <Toaster />
       </body>
     </html>
-  )
+  );
 }

@@ -8,6 +8,9 @@ CLOUDINARY_API_SECRET=fcWpd_9K6-cBxgGWw3aFkUKwQJo
 
 # Cloudinary Configuration (Client-side)
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=dnbodlxzt
+# IMPORTANT: Replace 'your_upload_preset' with your actual Cloudinary upload preset name
+# Create preset at: https://console.cloudinary.com/settings/upload
+# Make sure it's set to "Unsigned" mode for client-side uploads
 NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=your_upload_preset
 
 # Next.js Configuration

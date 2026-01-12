@@ -63,35 +63,123 @@ export function useCloudinaryWidget({
   }, []);
 
   const openWidget = useCallback(() => {
-    if (!isScriptLoaded || !window.cloudinary) {
-      console.error("Cloudinary widget not loaded");
+    if (!isScriptLoaded) {
+      console.error("Cloudinary script not loaded yet. Please wait...");
+      onError?.(
+        new Error("Cloudinary script is still loading. Please try again.")
+      );
       return;
     }
 
-    const widget = window.cloudinary.createUploadWidget(
-      {
+    if (!window.cloudinary) {
+      console.error("Cloudinary widget not available");
+      onError?.(new Error("Cloudinary widget is not available"));
+      return;
+    }
+
+    if (!cloudName || !uploadPreset) {
+      console.error("Missing Cloudinary configuration", {
         cloudName,
         uploadPreset,
-        sources: ["local", "camera", "url"],
-        multiple: false,
-        maxFiles: 1,
-        folder: folder || "opera-house/services",
-      },
-      (error, result) => {
-        if (error) {
-          console.error("Upload error:", error);
-          onError?.(error);
-          return;
-        }
+      });
+      onError?.(new Error("Cloudinary configuration is missing"));
+      return;
+    }
 
-        if (result && result.event === "success") {
-          const imageUrl = result.info.secure_url;
-          onSuccess?.(imageUrl);
-        }
-      }
-    );
+    try {
+      const widget = window.cloudinary.createUploadWidget(
+        {
+          cloudName,
+          uploadPreset,
+          sources: ["local", "camera", "url"],
+          multiple: false,
+          maxFiles: 1,
+          folder: folder || "opera-house/services",
+        } as any, // Using 'as any' to allow additional Cloudinary config options
+        (error, result) => {
+          if (error) {
+            console.error("Upload error:", error);
 
-    widget.open();
+            // Provide more helpful error messages
+            let errorMessage = "Failed to upload image";
+            if (typeof error === "object" && error !== null) {
+              const errorObj = error as { message?: string; status?: number };
+              if (errorObj.message) {
+                errorMessage = errorObj.message;
+
+                // Specific error for missing upload preset
+                if (
+                  errorObj.message.includes("preset") ||
+                  errorObj.message.includes("Upload preset not found")
+                ) {
+                  errorMessage =
+                    "Upload preset not found. Please check your Cloudinary upload preset configuration in .env.local and ensure the preset exists in your Cloudinary dashboard.";
+                }
+
+                // Specific error for unsigned uploads whitelisting
+                if (
+                  errorObj.message.includes("whitelisted") ||
+                  errorObj.message.includes("unsigned uploads")
+                ) {
+                  errorMessage =
+                    "Upload preset must be whitelisted for unsigned uploads. Go to Cloudinary Dashboard → Settings → Security and enable 'Allow unsigned uploads'. See FIX-UPLOAD-PRESET.md for details.";
+                }
+              }
+            } else if (typeof error === "string") {
+              errorMessage = error;
+              if (
+                errorMessage.includes("whitelisted") ||
+                errorMessage.includes("unsigned uploads")
+              ) {
+                errorMessage =
+                  "Upload preset must be whitelisted for unsigned uploads. Go to Cloudinary Dashboard → Settings → Security and enable 'Allow unsigned uploads'. See FIX-UPLOAD-PRESET.md for details.";
+              }
+            }
+
+            onError?.(new Error(errorMessage));
+            return;
+          }
+
+          if (result) {
+            console.log("Cloudinary widget event:", result.event, result);
+
+            // Handle different events
+            if (result.event === "success") {
+              const imageUrl = result.info?.secure_url || result.info?.url;
+              if (imageUrl) {
+                onSuccess?.(imageUrl);
+              } else {
+                onError?.(new Error("Image URL not found in upload result"));
+              }
+            } else if (result.event === "close") {
+              // Widget was closed without uploading
+              console.log("Widget closed without upload");
+            } else if (result.event === "abort") {
+              // Upload was aborted
+              console.log("Upload aborted");
+            } else if (result.event === "queues-start") {
+              // Upload started
+              console.log("Upload started");
+            } else if (result.event === "queues-end") {
+              // Upload ended
+              console.log("Upload ended");
+            }
+          }
+        }
+      );
+
+      // Open widget with a small delay to ensure DOM is ready
+      setTimeout(() => {
+        widget.open();
+      }, 100);
+    } catch (error) {
+      console.error("Error creating Cloudinary widget:", error);
+      onError?.(
+        error instanceof Error
+          ? error
+          : new Error("Failed to create upload widget")
+      );
+    }
   }, [cloudName, uploadPreset, folder, onSuccess, onError, isScriptLoaded]);
 
   return { openWidget, isScriptLoaded };
