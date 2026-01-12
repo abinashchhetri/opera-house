@@ -58,3 +58,18 @@ export interface ContactForm {
   service: string;
   message: string;
 }
+
+// Dashboard Types
+export interface DashboardNavItem {
+  id: string;
+  label: string;
+  href: string;
+  icon: string; // Lucide icon name
+  badge?: string | number;
+}
+
+export interface DashboardNavGroup {
+  id: string;
+  label: string;
+  items: DashboardNavItem[];
+}
