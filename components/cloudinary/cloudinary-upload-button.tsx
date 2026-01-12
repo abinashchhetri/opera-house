@@ -30,7 +30,7 @@ export function CloudinaryUploadButton({
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [isWidgetReady, setIsWidgetReady] = useState(false);
 
-  const { openWidget, isScriptLoaded } = useCloudinaryWidget({
+  const { openWidget, isScriptLoaded, scriptError } = useCloudinaryWidget({
     cloudName,
     uploadPreset,
     folder,
@@ -86,6 +86,18 @@ export function CloudinaryUploadButton({
     }
   }, [isScriptLoaded, cloudName, uploadPreset]);
 
+  // Show error toast when script fails to load
+  useEffect(() => {
+    if (scriptError) {
+      toast({
+        title: "Script Loading Error",
+        description:
+          "Failed to load Cloudinary upload widget. Please check your internet connection and try refreshing the page.",
+        variant: "destructive",
+      });
+    }
+  }, [scriptError, toast]);
+
   const handleClick = () => {
     if (!isWidgetReady) {
       toast({
@@ -115,11 +127,16 @@ export function CloudinaryUploadButton({
     <Button
       type="button"
       onClick={handleClick}
-      disabled={disabled || isUploading || !isWidgetReady}
+      disabled={disabled || isUploading || (!isWidgetReady && !scriptError)}
       className={className}
       variant="outline"
     >
-      {!isWidgetReady ? (
+      {scriptError ? (
+        <>
+          <AlertCircle className="mr-2 h-4 w-4" />
+          Load Failed
+        </>
+      ) : !isWidgetReady ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           Loading...

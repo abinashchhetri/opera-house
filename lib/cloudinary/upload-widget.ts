@@ -39,19 +39,38 @@ export function useCloudinaryWidget({
   onError,
 }: UseCloudinaryWidgetOptions) {
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
+  const [scriptError, setScriptError] = useState<Error | null>(null);
 
   useEffect(() => {
     // Check if script is already loaded
     if (window.cloudinary) {
       setIsScriptLoaded(true);
+      setScriptError(null);
       return;
     }
+
+    // Reset error state when attempting to load
+    setScriptError(null);
 
     // Load Cloudinary widget script
     const script = document.createElement("script");
     script.src = "https://upload-widget.cloudinary.com/global/all.js";
     script.async = true;
-    script.onload = () => setIsScriptLoaded(true);
+
+    script.onload = () => {
+      setIsScriptLoaded(true);
+      setScriptError(null);
+    };
+
+    script.onerror = () => {
+      const error = new Error(
+        "Failed to load Cloudinary script. Please check your internet connection and try again."
+      );
+      setScriptError(error);
+      setIsScriptLoaded(false);
+      onError?.(error);
+    };
+
     document.head.appendChild(script);
 
     return () => {
@@ -60,7 +79,7 @@ export function useCloudinaryWidget({
         document.head.removeChild(script);
       }
     };
-  }, []);
+  }, [onError]);
 
   const openWidget = useCallback(() => {
     if (!isScriptLoaded) {
@@ -182,5 +201,5 @@ export function useCloudinaryWidget({
     }
   }, [cloudName, uploadPreset, folder, onSuccess, onError, isScriptLoaded]);
 
-  return { openWidget, isScriptLoaded };
+  return { openWidget, isScriptLoaded, scriptError };
 }
