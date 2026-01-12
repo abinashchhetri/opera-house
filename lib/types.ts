@@ -17,6 +17,9 @@ export interface Service {
   description: string;
   features: string[];
   image?: string;
+  imageUrl?: string; // Cloudinary URL
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
 }
 
 export interface Product {
@@ -57,4 +60,19 @@ export interface ContactForm {
   phone: string;
   service: string;
   message: string;
+}
+
+// Dashboard Types
+export interface DashboardNavItem {
+  id: string;
+  label: string;
+  href: string;
+  icon: string; // Lucide icon name
+  badge?: string | number;
+}
+
+export interface DashboardNavGroup {
+  id: string;
+  label: string;
+  items: DashboardNavItem[];
 }

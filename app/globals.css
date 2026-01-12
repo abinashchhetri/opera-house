@@ -196,3 +196,23 @@
     -webkit-line-clamp: 3;
   }
 }
+
+/* Cloudinary Widget Z-Index Fix */
+/* Ensure Cloudinary upload widget appears above dialogs */
+.cloudinary-upload-widget,
+iframe[src*="cloudinary"],
+div[id*="cloudinary"],
+div[class*="cloudinary"] {
+  z-index: 99999 !important;
+}
+
+/* Allow Cloudinary widget to be clickable even when dialog is open */
+body:has(.cloudinary-upload-widget) [data-slot="dialog-overlay"],
+body:has(iframe[src*="cloudinary"]) [data-slot="dialog-overlay"] {
+  pointer-events: none;
+}
+
+body:has(.cloudinary-upload-widget) [data-slot="dialog-content"],
+body:has(iframe[src*="cloudinary"]) [data-slot="dialog-content"] {
+  pointer-events: auto;
+}
