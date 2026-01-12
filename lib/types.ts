@@ -17,6 +17,9 @@ export interface Service {
   description: string;
   features: string[];
   image?: string;
+  imageUrl?: string; // Cloudinary URL
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
 }
 
 export interface Product {

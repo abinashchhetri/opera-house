@@ -1,7 +1,6 @@
-import type React from "react";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar";
-import { DashboardHeader } from "@/components/dashboard/dashboard-header";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import type React from "react";
 
 export default function DashboardLayout({
   children,
@@ -14,8 +13,7 @@ export default function DashboardLayout({
     <SidebarProvider>
       <DashboardSidebar />
       <SidebarInset>
-        <DashboardHeader />
-        <main className="flex-1 overflow-auto p-6">{children}</main>
+       <main className="flex-1 overflow-auto p-6">{children}</main>
       </SidebarInset>
     </SidebarProvider>
   );
