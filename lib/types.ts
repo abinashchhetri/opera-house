@@ -25,13 +25,16 @@ export interface Service {
 export interface Product {
   id: string;
   name: string;
-  category: string;
+  category?: string; // Service ID reference (optional)
   description: string;
   price?: string;
   features: string[];
   specifications?: Record<string, string | undefined>; // Allow undefined values
   images: string[];
   image?: string;
+  imageUrl?: string; // Cloudinary URL
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
 }
 
 export interface ProjectPortfolio {

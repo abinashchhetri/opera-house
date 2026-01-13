@@ -16,4 +16,16 @@ export const ALERT_MESSAGES = {
     NOT_FOUND: "Service not found",
     NO_SERVICES: "No services available",
   },
+  PRODUCTS: {
+    FETCH_SUCCESS: "Products loaded successfully",
+    FETCH_ERROR: "Failed to load products",
+    CREATE_SUCCESS: "Product created successfully",
+    CREATE_ERROR: "Failed to create product",
+    UPDATE_SUCCESS: "Product updated successfully",
+    UPDATE_ERROR: "Failed to update product",
+    DELETE_SUCCESS: "Product deleted successfully",
+    DELETE_ERROR: "Failed to delete product",
+    NOT_FOUND: "Product not found",
+    NO_PRODUCTS: "No products available",
+  },
 } as const;
