@@ -11,6 +11,8 @@ export interface CreateServicePayload {
   imageUrl?: string;
 }
 
+export type UpdateServicePayload = CreateServicePayload;
+
 export interface ServiceResponse {
   success: boolean;
   message: string;
@@ -109,5 +111,100 @@ export async function getServices(
     return data;
   } catch (error) {
     throw new Error(error instanceof Error ? error.message : "Network error");
+  }
+}
+
+/**
+ * Get a single service by ID
+ */
+export async function getServiceById(id: string): Promise<ServiceResponse> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/services/${id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return {
+        success: false,
+        message: data.message || "Failed to fetch service",
+      };
+    }
+
+    return data;
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Network error",
+    };
+  }
+}
+
+/**
+ * Update an existing service
+ */
+export async function updateService(
+  id: string,
+  payload: UpdateServicePayload
+): Promise<ServiceResponse> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/services/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return {
+        success: false,
+        message: data.message || "Failed to update service",
+        errors: data.errors,
+      };
+    }
+
+    return data;
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Network error",
+    };
+  }
+}
+
+/**
+ * Delete a service by ID
+ */
+export async function deleteService(id: string): Promise<ServiceResponse> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/services/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return {
+        success: false,
+        message: data.message || "Failed to delete service",
+      };
+    }
+
+    return data;
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Network error",
+    };
   }
 }

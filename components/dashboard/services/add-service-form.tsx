@@ -17,7 +17,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { CloudinaryUploadButton } from "@/components/cloudinary/cloudinary-upload-button";
-import { createService } from "@/lib/api/services";
+import {
+  createService,
+  updateService,
+  getServiceById,
+} from "@/lib/api/services";
 import { Loader2, Image as ImageIcon, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -37,13 +41,16 @@ const serviceFormSchema = z.object({
 type ServiceFormValues = z.infer<typeof serviceFormSchema>;
 
 interface AddServiceFormProps {
+  serviceId?: string;
   onSuccess?: () => void;
 }
 
-export function AddServiceForm({ onSuccess }: AddServiceFormProps) {
+export function AddServiceForm({ serviceId, onSuccess }: AddServiceFormProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(!!serviceId);
   const [imageUrl, setImageUrl] = useState<string>("");
+  const isEditMode = !!serviceId;
 
   const form = useForm<ServiceFormValues>({
     resolver: zodResolver(serviceFormSchema),
@@ -55,6 +62,46 @@ export function AddServiceForm({ onSuccess }: AddServiceFormProps) {
     },
   });
 
+  // Load service data when editing
+  useEffect(() => {
+    if (serviceId) {
+      const loadService = async () => {
+        try {
+          setIsLoading(true);
+          const response = await getServiceById(serviceId);
+          if (response.success && response.data) {
+            const service = response.data;
+            form.reset({
+              title: service.title,
+              description: service.description,
+              features: service.features.join(", "),
+              imageUrl: service.imageUrl || "",
+            });
+            setImageUrl(service.imageUrl || "");
+          } else {
+            toast({
+              title: "Error",
+              description: response.message || "Failed to load service",
+              variant: "destructive",
+            });
+          }
+        } catch (error) {
+          toast({
+            title: "Error",
+            description:
+              error instanceof Error
+                ? error.message
+                : "An unexpected error occurred",
+            variant: "destructive",
+          });
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      loadService();
+    }
+  }, [serviceId, form, toast]);
+
   const onSubmit = async (data: ServiceFormValues) => {
     setIsSubmitting(true);
 
@@ -65,25 +112,37 @@ export function AddServiceForm({ onSuccess }: AddServiceFormProps) {
         .map((f) => f.trim())
         .filter((f) => f.length > 0);
 
-      const result = await createService({
+      const payload = {
         title: data.title,
         description: data.description,
         features,
         imageUrl: imageUrl || undefined,
-      });
+      };
+
+      const result = isEditMode
+        ? await updateService(serviceId!, payload)
+        : await createService(payload);
 
       if (result.success && result.data) {
         toast({
           title: "Success",
-          description: "Service created successfully",
+          description: isEditMode
+            ? "Service updated successfully"
+            : "Service created successfully",
         });
-        form.reset();
-        setImageUrl("");
+        if (!isEditMode) {
+          form.reset();
+          setImageUrl("");
+        }
         onSuccess?.();
       } else {
         toast({
           title: "Error",
-          description: result.message || "Failed to create service",
+          description:
+            result.message ||
+            (isEditMode
+              ? "Failed to update service"
+              : "Failed to create service"),
           variant: "destructive",
         });
       }
@@ -134,6 +193,14 @@ export function AddServiceForm({ onSuccess }: AddServiceFormProps) {
       });
     }
   }, [cloudName, uploadPreset]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <Form {...form}>
@@ -255,23 +322,32 @@ export function AddServiceForm({ onSuccess }: AddServiceFormProps) {
 
         {/* Submit Button */}
         <div className="flex justify-end gap-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => {
-              form.reset();
-              setImageUrl("");
-            }}
-            disabled={isSubmitting}
-          >
-            Reset
-          </Button>
-          <Button type="submit" disabled={isSubmitting}>
+          {!isEditMode && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                form.reset();
+                setImageUrl("");
+              }}
+              disabled={isSubmitting}
+            >
+              Reset
+            </Button>
+          )}
+          <Button type="submit" disabled={isSubmitting || isLoading}>
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Creating...
+                {isEditMode ? "Updating..." : "Creating..."}
               </>
+            ) : isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Loading...
+              </>
+            ) : isEditMode ? (
+              "Update Service"
             ) : (
               "Create Service"
             )}
