@@ -2,6 +2,7 @@
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
 import { Toaster } from "@/components/ui/toaster";
+import { AppQueryClientProvider } from "@/components/providers/query-client-provider";
 import { Playfair_Display, Poppins } from "next/font/google";
 import localFont from "next/font/local";
 import { usePathname } from "next/navigation";
@@ -62,10 +63,12 @@ export default function RootLayout({
       className={`${poppins.variable} ${playfair.variable} ${jeko.variable}`}
     >
       <body className="min-h-screen flex flex-col">
-        {isDashboard ? null : <Header />}
-        <main className="flex-1">{children}</main>
-        {isDashboard ? null : <Footer />}
-        <Toaster />
+        <AppQueryClientProvider>
+          {isDashboard ? null : <Header />}
+          <main className="flex-1">{children}</main>
+          {isDashboard ? null : <Footer />}
+          <Toaster />
+        </AppQueryClientProvider>
       </body>
     </html>
   );
