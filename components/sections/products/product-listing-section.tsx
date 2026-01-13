@@ -1,167 +1,132 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+"use client";
+
+import { useProducts } from "@/hooks/use-products.hook";
+import { ALERT_MESSAGES } from "@/lib/constants/alert-messages.constants";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 import Link from "next/link";
-import { ArrowRight, CheckCircle, Info } from "lucide-react";
-import { PRODUCTS } from "@/lib/constants";
 
 export function ProductListingSection() {
-  const upvcProducts = PRODUCTS.filter(
-    (product) => product.category === "upvc"
-  );
-  const aluminumProducts = PRODUCTS.filter(
-    (product) => product.category === "aluminum"
-  );
-  const steelProducts = PRODUCTS.filter(
-    (product) => product.category === "steel"
-  );
+  const { data, isLoading, error } = useProducts({ page: 1, limit: 100 });
 
-  const ProductCard = ({ product }: { product: any }) => (
-    <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/20 overflow-hidden">
-      <div className="relative overflow-hidden">
-        <img
-          src={product.image || "/placeholder.svg"}
-          alt={product.name}
-          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-        />
-        <div className="absolute top-4 left-4">
-          <Badge
-            variant="secondary"
-            className="bg-background/90 text-foreground capitalize"
-          >
-            {product.category}
-          </Badge>
-        </div>
-        {product.price && (
-          <div className="absolute top-4 right-4">
-            <Badge
-              variant="outline"
-              className="bg-background/90 text-foreground border-primary"
-            >
-              {product.price}
-            </Badge>
-          </div>
-        )}
-      </div>
-      <CardHeader className="pb-4">
-        <CardTitle className="text-xl font-semibold group-hover:text-primary transition-colors">
-          {product.name}
-        </CardTitle>
-        <p className="text-muted-foreground leading-relaxed">
-          {product.description}
-        </p>
-      </CardHeader>
-      <CardContent className="pt-0">
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium text-foreground">
-              Key Features:
-            </h4>
-            <ul className="space-y-1">
-              {product.features
-                .slice(0, 3)
-                .map((feature: string, index: number) => (
-                  <li key={index} className="flex items-center gap-2 text-sm">
-                    <CheckCircle className="h-3 w-3 text-accent flex-shrink-0" />
-                    <span className="text-muted-foreground">{feature}</span>
-                  </li>
-                ))}
-            </ul>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              asChild
-              variant="outline"
-              size="sm"
-              className="flex-1 group-hover:bg-primary group-hover:text-primary-foreground transition-colors bg-transparent"
-            >
-              <Link
-                href={`/products/${product.id}`}
-                className="flex items-center justify-center gap-2"
+  const products = data?.data || [];
+  const errorMessage =
+    error instanceof Error
+      ? error.message
+      : ALERT_MESSAGES.PRODUCTS.FETCH_ERROR;
+
+  if (isLoading) {
+    return (
+      <section id="products" className="py-5 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div
+                key={i}
+                className="flex flex-col items-center border border-[#E0E0E0] shadow-[0_4px_12px_rgba(0,0,0,0.05),0_-4px_12px_rgba(0,0,0,0.05)] bg-white p-4 sm:p-6 rounded-[20px] min-h-[387px] gap-4"
               >
-                View Details
-                <ArrowRight className="h-3 w-3" />
-              </Link>
-            </Button>
-            <Button asChild variant="ghost" size="sm">
-              <Link
-                href={`/contact?product=${product.id}`}
-                className="flex items-center gap-2"
-              >
-                Get Quote
-                <Info className="h-3 w-3" />
-              </Link>
-            </Button>
+                <Skeleton className="w-full h-48 sm:h-52 rounded-[13px]" />
+                <Skeleton className="w-full h-6" />
+                <Skeleton className="w-full h-4" />
+                <Skeleton className="w-full h-4" />
+                <Skeleton className="w-24 h-4" />
+              </div>
+            ))}
           </div>
         </div>
-      </CardContent>
-    </Card>
-  );
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section id="products" className="py-5 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{errorMessage}</AlertDescription>
+          </Alert>
+        </div>
+      </section>
+    );
+  }
+
+  if (products.length === 0) {
+    return (
+      <section id="products" className="py-24 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>No Products</AlertTitle>
+            <AlertDescription>
+              {ALERT_MESSAGES.PRODUCTS.NO_PRODUCTS}
+            </AlertDescription>
+          </Alert>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="products" className="py-24 bg-muted/30">
       <div className="container mx-auto px-4">
-        <div className="text-center space-y-4 mb-16">
-          <Badge variant="secondary" className="text-sm px-4 py-2">
-            Product Catalog
-          </Badge>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-serif text-primary">
-            Our Product Range
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Browse our comprehensive collection of UPVC, aluminum, and steel
-            products, each crafted with precision and designed for lasting
-            performance.
-          </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {products.map((product) => (
+            <Link
+              key={product.id}
+              href={`/products/${product.id}`}
+              className="flex flex-col items-center border border-[#E0E0E0] hover:border-[#2989d8] shadow-[0_4px_12px_rgba(0,0,0,0.05),0_-4px_12px_rgba(0,0,0,0.05)] bg-white p-4 sm:p-6 rounded-[20px] transition-all duration-300 cursor-pointer min-w-[280px] w-full h-auto min-h-[387px] gap-4 sm:min-h-[387px] flex-1"
+              id={`product-card-${product.id}`}
+            >
+              {/* Image */}
+              <div className="w-full h-48 sm:h-52 rounded-[13px] overflow-hidden relative">
+                {product.imageUrl || (product.images && product.images[0]) ? (
+                  <img
+                    src={product.imageUrl || product.images[0]}
+                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-[#f8f9fa] flex items-center justify-center">
+                    <div className="text-[#343a40] text-sm">No Image</div>
+                  </div>
+                )}
+              </div>
+              {/* Title */}
+              <h6 className="text-[#0D1B2A] hover:underline font-bold text-lg sm:text-xl md:text-[22px] truncate line-clamp-1 w-full text-left border-b border-[#2989d8] py-2 sm:py-3 hover:text-[#1e5799] transition-colors">
+                {product.name}
+              </h6>
+              {/* Description */}
+              <p className="text-[#4B5563] text-sm sm:text-base line-clamp-2 truncate text-wrap w-full text-left">
+                {product.description}
+              </p>
+              {/* Link */}
+              <div className="group w-full flex items-center justify-start text-sm sm:text-base relative">
+                <span className="relative text-[#2989d8]">
+                  Learn More
+                  {/* Hover underline animation directly under the text */}
+                  <span className="absolute bottom-0 left-0 h-[2px] bg-[#2989d8] w-0 group-hover:w-full transition-all duration-300 sm:block hidden"></span>
+                </span>
+                <svg
+                  className="ml-2 w-5 h-4 sm:w-5 sm:h-5 transition-transform duration-200 group-hover:translate-x-1 text-[#2989d8]"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </div>
+            </Link>
+          ))}
         </div>
-
-        <Tabs defaultValue="upvc" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-12">
-            <TabsTrigger value="upvc" className="text-lg py-3">
-              UPVC Solutions ({upvcProducts.length})
-            </TabsTrigger>
-            <TabsTrigger value="aluminum" className="text-lg py-3">
-              Aluminum Works ({aluminumProducts.length})
-            </TabsTrigger>
-            <TabsTrigger value="steel" className="text-lg py-3">
-              Steel Fabrication ({steelProducts.length})
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="upvc" className="space-y-8">
-            <div
-              id="upvc"
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-            >
-              {upvcProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="aluminum" className="space-y-8">
-            <div
-              id="aluminum"
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-            >
-              {aluminumProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="steel" className="space-y-8">
-            <div
-              id="steel"
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-            >
-              {steelProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          </TabsContent>
-        </Tabs>
       </div>
     </section>
   );

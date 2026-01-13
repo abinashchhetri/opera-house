@@ -17,7 +17,7 @@ export function RelatedProductsSection({
   }
 
   return (
-    <section className="py-24 bg-muted/30">
+    <section className="py-5 bg-muted/30">
       <div className="container mx-auto px-4">
         <div className="text-center space-y-4 mb-16">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-serif text-primary">
@@ -36,18 +36,24 @@ export function RelatedProductsSection({
             >
               <div className="relative overflow-hidden">
                 <img
-                  src={product.images[0] || "/placeholder.svg"}
+                  src={
+                    product.imageUrl ||
+                    (product.images && product.images[0]) ||
+                    "/placeholder.svg"
+                  }
                   alt={product.name}
                   className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                 />
-                <div className="absolute top-4 left-4">
-                  <Badge
-                    variant="secondary"
-                    className="bg-background/90 text-foreground"
-                  >
-                    {product.category}
-                  </Badge>
-                </div>
+                {product.categoryName && (
+                  <div className="absolute top-4 left-4">
+                    <Badge
+                      variant="secondary"
+                      className="bg-background/90 text-foreground"
+                    >
+                      {product.categoryName}
+                    </Badge>
+                  </div>
+                )}
                 <div className="absolute top-4 right-4">
                   <div className="flex items-center gap-1 bg-background/90 rounded-full px-2 py-1">
                     <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
