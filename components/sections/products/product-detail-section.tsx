@@ -30,12 +30,22 @@ export function ProductDetailSection({ product }: ProductDetailSectionProps) {
   const [selectedImage, setSelectedImage] = useState(0);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
 
-  const productImages = [
-    product?.images[0],
-    "/placeholder.svg?height=400&width=600",
-    "/placeholder.svg?height=400&width=600",
-    "/placeholder.svg?height=400&width=600",
-  ];
+  // Build product images array: prioritize imageUrl, then use images array
+  const productImages: string[] = [];
+  if (product?.imageUrl) {
+    productImages.push(product.imageUrl);
+  }
+  if (product?.images && product.images.length > 0) {
+    product.images.forEach((img: string) => {
+      if (img && !productImages.includes(img)) {
+        productImages.push(img);
+      }
+    });
+  }
+  // If no images, add placeholder
+  if (productImages.length === 0) {
+    productImages.push("/placeholder.svg?height=400&width=600");
+  }
 
   const benefits = [
     "Premium quality materials",
@@ -67,13 +77,17 @@ export function ProductDetailSection({ product }: ProductDetailSectionProps) {
             >
               Products
             </Link>
-            <span>/</span>
-            <Link
-              href={`/products#${product.category.toLowerCase()}`}
-              className="hover:text-primary transition-colors"
-            >
-              {product.category}
-            </Link>
+            {product.categoryName && (
+              <>
+                <span>/</span>
+                <Link
+                  href={`/products#${product.category?.toLowerCase() || ""}`}
+                  className="hover:text-primary transition-colors"
+                >
+                  {product.categoryName}
+                </Link>
+              </>
+            )}
             <span>/</span>
             <span className="text-foreground">{product.name}</span>
           </nav>
@@ -84,52 +98,71 @@ export function ProductDetailSection({ product }: ProductDetailSectionProps) {
           <div className="space-y-4">
             <div className="relative aspect-square bg-muted rounded-lg overflow-hidden">
               <img
-                src={productImages[selectedImage]}
+                src={
+                  productImages[selectedImage] ||
+                  "/placeholder.svg?height=400&width=600"
+                }
                 alt={product.name}
                 className="w-full h-full object-cover cursor-pointer"
                 onClick={() => setIsImageModalOpen(true)}
+                onError={(e) => {
+                  // Fallback to placeholder if image fails to load
+                  const target = e.target as HTMLImageElement;
+                  target.src = "/placeholder.svg?height=400&width=600";
+                }}
               />
-              <div className="absolute top-4 left-4">
-                <Badge
-                  variant="secondary"
-                  className="bg-background/90 text-foreground"
-                >
-                  {product.category}
-                </Badge>
-              </div>
+              {product.categoryName && (
+                <div className="absolute top-4 left-4">
+                  <Badge
+                    variant="secondary"
+                    className="bg-background/90 text-foreground"
+                  >
+                    {product.categoryName}
+                  </Badge>
+                </div>
+              )}
             </div>
 
             {/* Thumbnail Images */}
-            <div className="grid grid-cols-4 gap-2">
-              {productImages.map((image, index) => (
-                <div
-                  key={index}
-                  className={`aspect-square bg-muted rounded-lg overflow-hidden cursor-pointer border-2 transition-colors ${
-                    selectedImage === index
-                      ? "border-primary"
-                      : "border-transparent"
-                  }`}
-                  onClick={() => setSelectedImage(index)}
-                >
-                  <img
-                    src={image}
-                    alt={`${product.name} ${index + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ))}
-            </div>
+            {productImages.length > 1 && (
+              <div className="grid grid-cols-4 gap-2">
+                {productImages.map((image, index) => (
+                  <div
+                    key={index}
+                    className={`aspect-square bg-muted rounded-lg overflow-hidden cursor-pointer border-2 transition-colors ${
+                      selectedImage === index
+                        ? "border-primary"
+                        : "border-transparent"
+                    }`}
+                    onClick={() => setSelectedImage(index)}
+                  >
+                    <img
+                      src={image || "/placeholder.svg?height=400&width=600"}
+                      alt={`${product.name} ${index + 1}`}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        // Fallback to placeholder if image fails to load
+                        const target = e.target as HTMLImageElement;
+                        target.src = "/placeholder.svg?height=400&width=600";
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Product Information */}
           <div className="space-y-8">
             <div className="space-y-4">
-              <Badge
-                variant="outline"
-                className="text-sm px-3 py-1 border-primary text-primary"
-              >
-                {product.category}
-              </Badge>
+              {product.categoryName && (
+                <Badge
+                  variant="outline"
+                  className="text-sm px-3 py-1 border-primary text-primary"
+                >
+                  {product.categoryName}
+                </Badge>
+              )}
               <h1 className="text-3xl md:text-4xl font-bold text-primary leading-tight">
                 {product.name}
               </h1>

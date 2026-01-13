@@ -26,6 +26,7 @@ export interface Product {
   id: string;
   name: string;
   category?: string; // Service ID reference (optional)
+  categoryName?: string; // Service name (optional)
   description: string;
   price?: string;
   features: string[];

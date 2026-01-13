@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db/mongodb";
 import Product from "@/models/Product";
+import Service from "@/models/Service";
 import { createProductSchema } from "@/lib/validations/product-validation";
+import mongoose from "mongoose";
 
 export async function POST(request: NextRequest) {
   try {
@@ -134,6 +136,26 @@ export async function GET(request: NextRequest) {
     // Get total count for pagination
     const total = await Product.countDocuments(query);
 
+    // Fetch all unique service IDs from products
+    const serviceIds = products
+      .map((p) => p.category)
+      .filter(
+        (cat): cat is string =>
+          cat !== undefined &&
+          cat !== null &&
+          mongoose.Types.ObjectId.isValid(cat)
+      );
+
+    // Fetch services in one query
+    const services = await Service.find({
+      _id: { $in: serviceIds },
+    }).lean();
+
+    // Create a map of service ID to service title
+    const serviceMap = new Map(
+      services.map((service) => [service._id.toString(), service.title])
+    );
+
     return NextResponse.json(
       {
         success: true,
@@ -141,6 +163,9 @@ export async function GET(request: NextRequest) {
           id: product._id.toString(),
           name: product.name,
           category: product.category,
+          categoryName: product.category
+            ? serviceMap.get(product.category)
+            : undefined,
           description: product.description,
           price: product.price,
           features: product.features,

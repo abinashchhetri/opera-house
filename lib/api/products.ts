@@ -24,6 +24,7 @@ export interface ProductResponse {
     id: string;
     name: string;
     category?: string;
+    categoryName?: string;
     description: string;
     price?: string;
     features: string[];
@@ -45,6 +46,7 @@ export interface GetProductsResponse {
     id: string;
     name: string;
     category?: string;
+    categoryName?: string;
     description: string;
     price?: string;
     features: string[];

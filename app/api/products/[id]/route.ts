@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db/mongodb";
 import Product from "@/models/Product";
+import Service from "@/models/Service";
 import { createProductSchema } from "@/lib/validations/product-validation";
 import mongoose from "mongoose";
 
@@ -41,6 +42,15 @@ export async function GET(
       );
     }
 
+    // Fetch service name if category exists
+    let categoryName: string | undefined = undefined;
+    if (product.category && mongoose.Types.ObjectId.isValid(product.category)) {
+      const service = await Service.findById(product.category).lean();
+      if (service) {
+        categoryName = service.title;
+      }
+    }
+
     return NextResponse.json(
       {
         success: true,
@@ -48,6 +58,7 @@ export async function GET(
           id: product._id.toString(),
           name: product.name,
           category: product.category,
+          categoryName: categoryName,
           description: product.description,
           price: product.price,
           features: product.features,
