@@ -28,4 +28,16 @@ export const ALERT_MESSAGES = {
     NOT_FOUND: "Product not found",
     NO_PRODUCTS: "No products available",
   },
+  PORTFOLIOS: {
+    FETCH_SUCCESS: "Portfolios loaded successfully",
+    FETCH_ERROR: "Failed to load portfolios",
+    CREATE_SUCCESS: "Portfolio created successfully",
+    CREATE_ERROR: "Failed to create portfolio",
+    UPDATE_SUCCESS: "Portfolio updated successfully",
+    UPDATE_ERROR: "Failed to update portfolio",
+    DELETE_SUCCESS: "Portfolio deleted successfully",
+    DELETE_ERROR: "Failed to delete portfolio",
+    NOT_FOUND: "Portfolio not found",
+    NO_PORTFOLIOS: "No portfolios available",
+  },
 } as const;

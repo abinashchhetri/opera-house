@@ -40,13 +40,9 @@ export interface Product {
 
 export interface ProjectPortfolio {
   id: string;
-  title: string;
-  category: string;
-  description: string;
-  location: string;
-  completedDate: string;
   images: string[];
-  services: string[];
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
 }
 
 export interface TeamMember {

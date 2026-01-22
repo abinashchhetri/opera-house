@@ -6,6 +6,7 @@ import { AppQueryClientProvider } from "@/components/providers/query-client-prov
 import { Playfair_Display, Poppins } from "next/font/google";
 import localFont from "next/font/local";
 import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 import type React from "react";
 import "./globals.css";
 
@@ -57,6 +58,27 @@ export default function RootLayout({
 }>) {
   const path = usePathname();
   const isDashboard = path.startsWith("/dashboard");
+
+  // Add favicon link to head
+  useEffect(() => {
+    const link = document.createElement("link");
+    link.rel = "icon";
+    link.type = "image/png";
+    link.href = "/images/logo.png";
+
+    // Remove existing favicon links
+    const existingLinks = document.querySelectorAll('link[rel="icon"]');
+    existingLinks.forEach((el) => el.remove());
+
+    document.head.appendChild(link);
+
+    // Also add apple-touch-icon
+    const appleLink = document.createElement("link");
+    appleLink.rel = "apple-touch-icon";
+    appleLink.href = "/images/logo.png";
+    document.head.appendChild(appleLink);
+  }, []);
+
   return (
     <html
       lang="en"

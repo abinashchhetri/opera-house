@@ -1,39 +1,45 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
-import { ArrowRight, MapPin, Calendar } from "lucide-react"
+"use client";
+
+import { useState, useMemo } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { usePortfolios } from "@/hooks/use-portfolios.hook";
+import { ALERT_MESSAGES } from "@/lib/constants/alert-messages.constants";
 
 export function PortfolioPreviewSection() {
-  const featuredProjects = [
-    {
-      id: "residential-complex",
-      title: "Modern Residential Complex",
-      category: "UPVC Windows & Doors",
-      location: "Pokhara-12",
-      completedDate: "2024",
-      image: "/placeholder.svg?height=300&width=400",
-      description: "Complete UPVC window and door installation for 24-unit residential complex.",
-    },
-    {
-      id: "office-building",
-      title: "Corporate Office Building",
-      category: "Aluminum Partitions",
-      location: "Pokhara-8",
-      completedDate: "2024",
-      image: "/placeholder.svg?height=300&width=400",
-      description: "Aluminum partition systems and sliding doors for multi-story office complex.",
-    },
-    {
-      id: "hotel-project",
-      title: "Luxury Hotel Project",
-      category: "Mixed Solutions",
-      location: "Pokhara-6",
-      completedDate: "2023",
-      image: "/placeholder.svg?height=300&width=400",
-      description: "Comprehensive UPVC and aluminum solutions for 5-star hotel property.",
-    },
-  ]
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const { data, isLoading, error } = usePortfolios({ page: 1, limit: 50 });
+
+  // Flatten all images from all portfolios into a single array
+  const portfolioImages = useMemo(() => {
+    if (!data?.data) return [];
+    const allImages: string[] = [];
+    data.data.forEach((portfolio) => {
+      if (portfolio.images && portfolio.images.length > 0) {
+        portfolio.images.forEach((image) => {
+          if (image && !allImages.includes(image)) {
+            allImages.push(image);
+          }
+        });
+      }
+    });
+    return allImages;
+  }, [data]);
+
+  const errorMessage =
+    error instanceof Error
+      ? error.message
+      : ALERT_MESSAGES.PORTFOLIOS.FETCH_ERROR;
+
+  const handleImageClick = (imageUrl: string) => {
+    setSelectedImage(imageUrl);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedImage(null);
+  };
 
   return (
     <section className="py-24 bg-muted/30">
@@ -42,60 +48,89 @@ export function PortfolioPreviewSection() {
           <Badge variant="secondary" className="text-sm px-4 py-2">
             Our Portfolio
           </Badge>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-serif text-primary">Recent Projects</h2>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-serif text-primary">
+            Recent Projects
+          </h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Explore our latest completed projects showcasing the quality and craftsmanship that defines Opera Groups And
-            Company.
+            Explore our latest completed projects showcasing the quality and
+            craftsmanship that defines Opera Groups And Company.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          {featuredProjects.map((project) => (
-            <Card
-              key={project.id}
-              className="group hover:shadow-lg transition-all duration-300 overflow-hidden border-2 hover:border-primary/20"
-            >
-              <div className="relative overflow-hidden">
-                <img
-                  src={project.image || "/placeholder.svg"}
-                  alt={project.title}
-                  className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute top-4 left-4">
-                  <Badge variant="secondary" className="bg-background/90 text-foreground">
-                    {project.category}
-                  </Badge>
+        {/* Loading State */}
+        {isLoading ? (
+          <div className="columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <div key={i} className="break-inside-avoid mb-4">
+                <Skeleton className="w-full h-64 rounded-lg" />
+              </div>
+            ))}
+          </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">{errorMessage}</p>
+          </div>
+        ) : portfolioImages.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">
+              {ALERT_MESSAGES.PORTFOLIOS.NO_PORTFOLIOS}
+            </p>
+          </div>
+        ) : (
+          /* Pinterest-style Masonry Layout */
+          <div className="columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
+            {portfolioImages.map((imageUrl, index) => (
+              <div
+                key={`${imageUrl}-${index}`}
+                className="break-inside-avoid mb-4 cursor-pointer group"
+                onClick={() => handleImageClick(imageUrl)}
+              >
+                <div className="relative overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
+                  <img
+                    src={imageUrl}
+                    alt={`Portfolio image ${index + 1}`}
+                    className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-300"
+                    loading="lazy"
+                    onError={(e) => {
+                      // Hide broken images
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = "none";
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
                 </div>
               </div>
-              <CardContent className="p-6">
-                <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
-                  {project.title}
-                </h3>
-                <p className="text-muted-foreground mb-4 leading-relaxed">{project.description}</p>
-                <div className="space-y-2 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-primary" />
-                    <span>{project.location}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-primary" />
-                    <span>Completed {project.completedDate}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
-        <div className="text-center">
-          <Button asChild size="lg" className="px-8 py-6 text-lg">
-            <Link href="/portfolio" className="flex items-center gap-2">
-              View All Projects
-              <ArrowRight className="h-5 w-5" />
-            </Link>
-          </Button>
-        </div>
+        {/* Image Modal */}
+        {selectedImage && (
+          <div
+            className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4"
+            onClick={handleCloseModal}
+          >
+            <div
+              className="relative max-w-7xl w-full max-h-[95vh] flex items-center justify-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-4 right-4 z-10 bg-background/20 text-white hover:bg-background/40 h-10 w-10"
+                onClick={handleCloseModal}
+              >
+                <X className="h-6 w-6" />
+              </Button>
+              <img
+                src={selectedImage}
+                alt="Portfolio preview"
+                className="max-w-full max-h-[95vh] w-auto h-auto object-contain rounded-lg"
+              />
+            </div>
+          </div>
+        )}
       </div>
     </section>
-  )
+  );
 }

@@ -1,6 +1,6 @@
-import Link from "next/link"
-import { Phone, Mail, MapPin, Clock } from "lucide-react"
-import { COMPANY_INFO, NAVIGATION_ITEMS, SERVICES } from "@/lib/constants"
+import Link from "next/link";
+import { Phone, Mail, MapPin, Clock } from "lucide-react";
+import { COMPANY_INFO, NAVIGATION_ITEMS, SERVICES } from "@/lib/constants";
 
 export function Footer() {
   return (
@@ -9,8 +9,19 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div className="space-y-4">
-            <h3 className="font-bold text-lg text-primary">{COMPANY_INFO.name}</h3>
-            <p className="text-sm text-muted-foreground">{COMPANY_INFO.description}</p>
+            <Link href="/" className="flex items-center space-x-2">
+              <img
+                src="/images/logo.png"
+                alt={COMPANY_INFO.name}
+                className="h-10 w-auto"
+              />
+            </Link>
+            <h3 className="font-bold text-lg text-primary">
+              {COMPANY_INFO.name}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {COMPANY_INFO.description}
+            </p>
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm">
                 <Phone className="h-4 w-4 text-primary" />
@@ -67,7 +78,9 @@ export function Footer() {
                 <Clock className="h-4 w-4 text-primary" />
                 <div>
                   <div>Mon - Fri: 9:00 AM - 6:00 PM</div>
-                  <div className="text-muted-foreground">Sat: 9:00 AM - 4:00 PM</div>
+                  <div className="text-muted-foreground">
+                    Sat: 9:00 AM - 4:00 PM
+                  </div>
                   <div className="text-muted-foreground">Sun: Closed</div>
                 </div>
               </div>
@@ -77,11 +90,11 @@ export function Footer() {
 
         <div className="border-t mt-8 pt-8 text-center">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} {COMPANY_INFO.name}. All rights reserved. Established{" "}
-            {COMPANY_INFO.establishedYear}.
+            © {new Date().getFullYear()} {COMPANY_INFO.name}. All rights
+            reserved. Established {COMPANY_INFO.establishedYear}.
           </p>
         </div>
       </div>
     </footer>
-  )
+  );
 }
