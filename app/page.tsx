@@ -29,9 +29,9 @@ export default function HomePage() {
     <div className="flex flex-col">
       <HeroSection />
       <ServicesSection />
-      <ProductsSection />
       <AboutPreviewSection />
-      <WhyChooseUsSection />
+      <ProductsSection />
+      <WhyChooseUsSection /> 
       <PortfolioPreviewSection />
       <ContactPreviewSection />
     </div>

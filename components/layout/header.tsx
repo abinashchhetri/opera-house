@@ -1,14 +1,14 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Menu, Phone, Mail } from "lucide-react"
-import { COMPANY_INFO, NAVIGATION_ITEMS } from "@/lib/constants"
+import { useState } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Menu, Phone, Mail } from "lucide-react";
+import { COMPANY_INFO, NAVIGATION_ITEMS } from "@/lib/constants";
 
 export function Header() {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -35,7 +35,14 @@ export function Header() {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center space-x-2">
-            <div className="font-bold text-xl text-primary">{COMPANY_INFO.name}</div>
+            <img
+              src="/images/logo.png"
+              alt={COMPANY_INFO.name}
+              className="h-10 w-auto"
+            />
+            <div className="font-bold text-xl text-primary hidden sm:block">
+              {COMPANY_INFO.name}
+            </div>
           </Link>
 
           {/* Desktop Navigation */}
@@ -88,5 +95,5 @@ export function Header() {
         </div>
       </div>
     </header>
-  )
+  );
 }
